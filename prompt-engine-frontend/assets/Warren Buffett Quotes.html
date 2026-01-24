@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>巴菲特价值投资语录</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Google Fonts - Playfair Display -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#f5f5f5',
+                        text: '#333333',
+                        footer: '#666666',
+                        button: '#333333'
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .quote-container {
+                min-height: 60vh;
+            }
+            
+            .quote-text {
+                font-size: clamp(1.25rem, 5vw, 1.5rem);
+                line-height: 1.7;
+            }
+            
+            .nav-button {
+                width: 50px;
+                height: 50px;
+                opacity: 0.6;
+                transition: all 0.3s ease;
+            }
+            
+            .nav-button:hover {
+                opacity: 1;
+                background-color: theme('colors.button');
+                color: white;
+            }
+            
+            .quote-fade {
+                transition: opacity 0.5s ease-in-out;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background text-text font-serif">
+    <div class="container mx-auto px-4 py-12 flex flex-col items-center justify-center min-h-screen">
+        <!-- 语录展示区域 -->
+        <div class="w-full max-w-3xl mx-auto quote-container flex flex-col items-center justify-start pt-16 px-4">
+            <div id="quoteDisplay" class="quote-fade w-full">
+                <div class="quote-text text-center mb-4">
+                    <!-- 语录文本将通过JavaScript动态插入 -->
+                </div>
+                <div id="quoteSource" class="text-footer text-sm font-sans text-center italic">
+                    <!-- 语录出处将通过JavaScript动态插入 -->
+                </div>
+            </div>
+            <div id="pageIndicator" class="text-footer text-sm font-sans mt-40 mb-1">
+                <!-- 页码将通过JavaScript动态插入 -->
+            </div>
+            
+            <!-- 导航按钮 -->
+            <div class="w-full flex justify-between items-center absolute left-0 px-4 md:px-8">
+                <button id="prevButton" class="nav-button rounded-full bg-white/80 flex items-center justify-center shadow-md">
+                    <i class="fa fa-chevron-left text-xl"></i>
+                </button>
+                <button id="nextButton" class="nav-button rounded-full bg-white/80 flex items-center justify-center shadow-md">
+                    <i class="fa fa-chevron-right text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 页脚 -->
+        <footer class="mt-auto py-6 text-footer text-sm font-sans">
+            <p class="text-center">价值投资 | 巴菲特语录</p>
+        </footer>
+    </div>
+
+    <script>
+        // 巴菲特语录数据
+        const quotes = [
+            {
+                text: "价格是你付出的，价值是你得到的。",
+                source: "伯克希尔·哈撒韦2008年年报",
+                year: "2008"
+            },
+            {
+                text: "投资不是在公牛市中获利，而是在熊市中避免损失。",
+                source: "伯克希尔·哈撒韦2009年年报",
+                year: "2009"
+            },
+            {
+                text: "我们最喜欢的持有期是永远。",
+                source: "伯克希尔·哈撒韦1988年年报",
+                year: "1988"
+            },
+            {
+                text: "不要把所有鸡蛋放在同一个篮子里，但也不要太分散，以至于无法好好照看它们。",
+                source: "巴菲特致股东信",
+                year: "1993"
+            },
+            {
+                text: "当别人贪婪时恐惧，当别人恐惧时贪婪。",
+                source: "伯克希尔·哈撒韦2004年年报",
+                year: "2004"
+            },
+            {
+                text: "如果你不愿意拥有一只股票十年，那就不要考虑拥有它十分钟。",
+                source: "巴菲特访谈",
+                year: "1996"
+            },
+            {
+                text: "投资的第一条原则是不要赔钱；第二条原则是永远不要忘记第一条原则。",
+                source: "巴菲特致股东信",
+                year: "1992"
+            },
+            {
+                text: "时间是优质企业的朋友，是平庸企业的敌人。",
+                source: "伯克希尔·哈撒韦2005年年报",
+                year: "2005"
+            },
+            {
+                text: "我宁愿模糊的正确，也不要精确的错误。",
+                source: "巴菲特访谈",
+                year: "1994"
+            },
+            {
+                text: "没有调查研究就没有发言权，投资前一定要做足功课。",
+                source: "巴菲特致股东信",
+                year: "1989"
+            },
+            {
+                text: "市场就像上帝一样，帮助那些自助的人。但与上帝不同的是，市场不会原谅那些不知道自己在做什么的人。",
+                source: "伯克希尔·哈撒韦1986年年报",
+                year: "1986"
+            },
+            {
+                text: "投资成功不需要天才般的智商、非比寻常的商业洞察力或内部消息，需要的是一个稳妥的思考框架和防止情绪侵蚀这个框架的能力。",
+                source: "巴菲特致股东信",
+                year: "1995"
+            },
+            {
+                text: "价格是你付出的，价值是你得到的。评估价值的能力是投资成功的关键。",
+                source: "伯克希尔·哈撒韦2010年年报",
+                year: "2010"
+            },
+            {
+                text: "我们不会因为市场预测而购买或出售，而是基于企业的长期经济前景。",
+                source: "巴菲特访谈",
+                year: "2001"
+            },
+            {
+                text: "在投资中，耐心比头脑更重要。",
+                source: "巴菲特致股东信",
+                year: "1991"
+            },
+            {
+                text: "我不试图跨越七英尺高的栏杆，我寻找的是一英尺高的、我可以跨过去的栏杆。",
+                source: "伯克希尔·哈撒韦2002年年报",
+                year: "2002"
+            },
+            {
+                text: "当企业的基本面良好但股价下跌时，这是投资的好时机，而不是卖出的时机。",
+                source: "巴菲特访谈",
+                year: "1998"
+            },
+            {
+                text: "投资的本质是对未来的预测，而预测总是不确定的。因此，风险管理是投资中最重要的部分。",
+                source: "伯克希尔·哈撒韦2007年年报",
+                year: "2007"
+            },
+            {
+                text: "我们欢迎市场下跌，因为它使我们能够以更低的价格购买更多优质企业的股票。",
+                source: "巴菲特致股东信",
+                year: "2000"
+            },
+            {
+                text: "长期来看，股票市场是称重机，短期来看，它是投票机。",
+                source: "伯克希尔·哈撒韦1987年年报",
+                year: "1987"
+            },
+            {
+                text: "风险来自于你不知道自己在做什么。",
+                source: "巴菲特致股东信",
+                year: "1993"
+            },
+            {
+                text: "我们偏爱那些即使一个傻瓜来管理，也能持续成功的企业。",
+                source: "巴菲特致股东信",
+                year: "1996"
+            },
+            {
+                text: "我们试图以合理的价格购买出色的公司，而不是以低廉的价格购买普通的公司。",
+                source: "巴菲特致股东信",
+                year: "1992"
+            },
+            {
+                text: "如果你不能理解一家公司，就不要投资它。",
+                source: "巴菲特访谈",
+                year: "1998"
+            },
+            {
+                text: "投资中最重要的事情是找到那些有护城河的公司。",
+                source: "巴菲特致股东信",
+                year: "1995"
+            },
+            {
+                text: "最值得投资的公司无需依赖无止境的资本输血，它们本身就是印钞机。",
+                source: "巴菲特致股东信",
+                year: "1992"
+            },
+            {
+                text: "企业的真实价值是其存续期内自由现金流的折现总和，其他指标皆是噪声。",
+                source: "巴菲特致股东信",
+                year: "2000"
+            },
+            {
+                text: "当你遇到一艘总是会漏水的破船，与其不断白费力气去补破洞，还不如把精力放在如何换条好船之上。",
+                source: "巴菲特致股东信",
+                year: "1989"
+            },
+            {
+                text: "西方石油知道如何将石油从岩石中分离出来，这是一种不寻常的才能，对它的股东和国家都是有价值的。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "短期看市场是投票机(情绪驱动)，长期看是称重机(价值回归)。精明者利用前者，愚者被后者碾压。",
+                source: "伯克希尔·哈撒韦1987年年报",
+                year: "1987"
+            },
+            {
+                text: "当潮水退去时，你才知道谁在裸泳。",
+                source: "巴菲特致股东信",
+                year: "1992"
+            },
+            {
+                text: "现在的市场表现出比我年轻时更像赌场的行为，赌场存在于许多家庭中，每天都在诱惑住户。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "华尔街希望客户赚钱，但真正让客户热血沸腾的是狂热的活动——任何可以推销的愚蠢东西都会被大力推销。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "股市下跌是买入好公司的机会。",
+                source: "巴菲特访谈",
+                year: "2008"
+            },
+            {
+                text: "杠杆是一把双刃剑，能放大收益，也能放大损失。历史表明，无论操作者多么聪明，金融杠杆都很可能带来'0'。",
+                source: "巴菲特致股东信",
+                year: "2002"
+            },
+            {
+                text: "伯克希尔持有的现金和美国国债数量远远超出传统观点所认为的必要水平……我们无法预测危机时间，但总是为此做好准备。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "如果你不能承受50%的下跌，就不应该投资股票。",
+                source: "巴菲特访谈",
+                year: "2008"
+            },
+            {
+                text: "所有股票回购都应该取决于价格:基于商业价值的折价回购是明智之举，如果以溢价回购，就会变得愚蠢。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "极端的财政保守主义，是我们对伯克希尔股东做出的企业承诺。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "持有可口可乐和美国运通的最大启发是:当你找到一个真正出色的企业时，请坚持下去。耐心是有回报的，一项出色的业务可以抵消许多平庸决策。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "股市是财富从不耐心的人手中转移到耐心的人手中的工具。",
+                source: "巴菲特致股东信",
+                year: "2010"
+            },
+            {
+                text: "最好的管理者会把公司的利益放在首位，而不是个人利益。",
+                source: "巴菲特致股东信",
+                year: "1997"
+            },
+            {
+                text: "投资是放弃当前消费获取未来更多消费的能力，核心是对未来价值的预判。",
+                source: "巴菲特访谈",
+                year: "2003"
+            },
+            {
+                text: "投资不需要高难度动作，避免重大错误即可。",
+                source: "巴菲特访谈",
+                year: "2005"
+            },
+            {
+                text: "买股票就是买公司，持有股票十年，就需用十年企业发展的眼光判断。",
+                source: "巴菲特访谈",
+                year: "2007"
+            },
+            {
+                text: "优秀管理层能把1美元留存收益创造超过1美元市值，这是企业优质的核心信号之一。",
+                source: "巴菲特致股东信",
+                year: "1985"
+            },
+            {
+                text: "市场服务你而非指导你，要利用市场先生的躁郁症。",
+                source: "巴菲特访谈",
+                year: "1987"
+            },
+            {
+                text: "用4毛钱买价值1块钱的东西，安全边际是成功基石。",
+                source: "巴菲特致股东信",
+                year: "1991"
+            },
+            {
+                text: "避免永久性损失本金是首要原则，短期账面浮亏可接受，但本金清零的风险必须杜绝。",
+                source: "巴菲特访谈",
+                year: "2009"
+            },
+            {
+                text: "投资就像滚雪球，关键找到湿的雪和长山坡。",
+                source: "巴菲特访谈",
+                year: "2004"
+            },
+            {
+                text: "买股票时想象整个市场明天关闭五年，聚焦企业长期价值而非短期波动。",
+                source: "巴菲特访谈",
+                year: "2008"
+            },
+            {
+                text: "只在你的能力范围内比赛，避开七尺栏杆，专注一尺栏杆。",
+                source: "巴菲特致股东信",
+                year: "2006"
+            },
+            {
+                text: "重要的不是圈有多大，而是知道边界在哪。",
+                source: "巴菲特访谈",
+                year: "2001"
+            },
+            {
+                text: "投资成功不需要懂所有公司，只需懂少数。",
+                source: "巴菲特访谈",
+                year: "1999"
+            },
+            {
+                text: "不碰科技股不是否定科技，而是否定自己的认知。",
+                source: "巴菲特访谈",
+                year: "2010"
+            },
+            {
+                text: "如果五分钟内无法理解商业模式，就放弃。",
+                source: "巴菲特访谈",
+                year: "2002"
+            },
+            {
+                text: "不需要每次都挥棒，等待最适合的球，宁可放过也不犯错。",
+                source: "巴菲特访谈",
+                year: "2000"
+            },
+            {
+                text: "我们靠避开恶龙而非斩杀恶龙生存，承认无知是智慧的开始。",
+                source: "巴菲特致股东信",
+                year: "1998"
+            },
+            {
+                text: "伯克希尔已经成为一家伟大的公司。虽然我长期负责施工队，但查理芒格应该永远被认为是建筑师。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "在伯克希尔，我们的目标群体十分有限：他们是那些将自己的储蓄托付给伯克希尔，并不期望转售伯克希尔股票的投资者。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "本·格雷厄姆教导我，'短期内市场行为如同一台投票机；而长期来看，它是一台称重机'。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "我们在伯克希尔的目标很简单：我们希望拥有享有良好、基本和持久经济效益的企业，要么全部拥有，要么持有一部分股份。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "在伯克希尔，我们特别青睐那些未来能够以高回报率进行资本投入的稀有企业。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "永远不要指望你能阻止一个流氓欺骗你。人不是那么容易读懂的，诚意和同理心很容易伪装。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "目前为止，伯克希尔哈撒韦的GAAP（美国通用会计准则）净资产是美国企业中最高的。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "经过59年的整合，我们现在拥有各种业务的一部分或100%，按加权计算，这些业务的前景略好于大多数美国大公司。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "我们将永远忠于我们的国家和我们的股东，我们永远不会忘记，虽然你的钱和我们的钱在一起，但它不属于我们。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "偶尔，市场或经济会导致一些基本面良好的大型企业的股票和债券出现惊人的错误定价。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "金融生活中的一个事实永远不应该被忘记，华尔街希望它的客户赚钱，但真正让它的客户热血沸腾的是狂热的活动。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "伯克希尔有一条投资规则永远不会改变：永远不要冒资本永久损失的风险。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "我相信伯克希尔能够应对前所未有的金融灾难，我们不会放弃这种能力。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "我们的目标是现实的，伯克希尔的优势来自于它在扣除利息成本、税收和大量折旧及摊销费用后巨大的多元化收益。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "可口可乐和美国运通，都不像我们对苹果的持仓那么大，每只股票只占伯克希尔公司公认会计准则净值的4-5%，但它们是有价值的资产。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "我们没有买卖美国运通或可口可乐的股票已经持续了二十多年。去年，这两家公司再次通过提高盈利和股息来奖励我们的不作为。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "我能创造一个比这两家公司更好的全球业务吗？不可能。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "伊藤忠、丸红、三菱、三井和住友这五家日本公司以一种高度多样化的方式经营，有些类似于伯克希尔自身的经营方式。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "我不相信我们能够预测主要货币的市场价格，也不相信我们能够雇佣具备这种能力的人。",
+                source: "伯克希尔·哈撒韦2024年年报",
+                year: "2024"
+            },
+            {
+                text: "买入1美元，只花50美分。",
+                source: "巴菲特早期投资理念",
+                year: "1965-1976"
+            },
+            {
+                text: "我们用别人的钱赚钱，但承担自己的责任。",
+                source: "巴菲特论保险业务",
+                year: "1977-1988"
+            },
+            {
+                text: "宁可以合理的价格买一家伟大的公司，不愿以便宜的价格买一家平庸的公司。",
+                source: "巴菲特投资转型期",
+                year: "1989-1999"
+            },
+            {
+                text: "别人贪婪时我恐惧，别人恐惧时我贪婪。",
+                source: "巴菲特论市场泡沫",
+                year: "2000-2008"
+            },
+            {
+                text: "我们寻找的是终身伴侣型的公司，而不是一夜情。",
+                source: "巴菲特论长期投资",
+                year: "2009-2019"
+            },
+            {
+                text: "我们并不预测市场，而是相信好公司在长期里会回报投资者。",
+                source: "巴菲特论市场预测",
+                year: "2020-2023"
+            },
+            {
+                text: "通胀是投资者的头号敌人。",
+                source: "巴菲特致股东信",
+                year: "1981"
+            },
+            {
+                text: "最好的投资是投资自己。",
+                source: "巴菲特致股东信",
+                year: "2014"
+            },
+            {
+                text: "投资很简单，但不容易。",
+                source: "巴菲特访谈",
+                year: "2006"
+            },
+            {
+                text: "分散是对无知的保护。",
+                source: "巴菲特论投资组合",
+                year: "1993"
+            },
+            {
+                text: "市场先生每天都会给你报价，有时他情绪高涨，报出高价；有时他情绪低落，报出低价。但你有权选择是否接受他的报价。",
+                source: "巴菲特致股东信",
+                year: "1987"
+            },
+            {
+                text: "在通胀周期中，优先选择能自主提价的行业（必需消费品、高端品牌）。",
+                source: "巴菲特论通胀",
+                year: "1981"
+            },
+            {
+                text: "避免投资高负债、低利润率的公司（通胀会加剧其利息负担）。",
+                source: "巴菲特论通胀",
+                year: "1981"
+            },
+            {
+                text: "在市场暴跌时保持冷静，关注企业基本面而非头条新闻。",
+                source: "巴菲特论市场波动",
+                year: "2008"
+            },
+            {
+                text: "避免盲目跟随热点。",
+                source: "巴菲特论投资纪律",
+                year: "2010"
+            },
+            {
+                text: "持续学习，扩大自己的能力圈（例如研究新兴行业如AI、新能源）。",
+                source: "巴菲特论学习",
+                year: "2020"
+            },
+            {
+                text: "避免投资不懂的领域（如巴菲特早期回避科技股，后因理解苹果商业模式才重仓）。",
+                source: "巴菲特论能力圈",
+                year: "2016"
+            },
+            {
+                text: "我们靠阅读和思考赚钱，而不是靠勤勤恳恳地工作。",
+                source: "巴菲特论投资方法",
+                year: "1988"
+            },
+            {
+                text: "如果你不愿意在公开场合为你的投资决策辩护，那么你就不应该做出这个决策。",
+                source: "巴菲特论投资纪律",
+                year: "1995"
+            },
+            {
+                text: "我们不会因为税收因素而放弃一个好的投资机会。",
+                source: "巴菲特论税务筹划",
+                year: "1999"
+            },
+            {
+                text: "一个投资者应该像企业分析师一样思考，而不是像市场分析师、宏观经济分析师或证券分析师那样思考。",
+                source: "巴菲特论投资思维",
+                year: "1992"
+            },
+            {
+                text: "当你投资一只股票时，你实际上是在投资一家企业的未来现金流。",
+                source: "巴菲特论企业价值",
+                year: "1996"
+            },
+            {
+                text: "我们喜欢简单的企业，复杂的企业往往会带来复杂的问题。",
+                source: "巴菲特论商业模式",
+                year: "1987"
+            },
+            {
+                text: "在评估管理层时，我们关注的是他们如何分配资本，而不仅仅是他们如何经营业务。",
+                source: "巴菲特论管理层评估",
+                year: "1994"
+            },
+            {
+                text: "我们不关心短期盈利，我们关心的是长期竞争优势的持久性。",
+                source: "巴菲特论企业评估",
+                year: "2001"
+            },
+            {
+                text: "市场会波动，但我们的投资原则不会。",
+                source: "巴菲特论投资原则",
+                year: "2008"
+            },
+            {
+                text: "我们宁愿接受一个确定的良好结果，也不愿追求一个可能的伟大结果。",
+                source: "巴菲特论风险偏好",
+                year: "1993"
+            },
+            {
+                text: "投资成功的关键不在于预测市场，而在于控制风险。",
+                source: "巴菲特论风险管理",
+                year: "2004"
+            },
+            {
+                text: "我们不会投资于那些我们不能在五分钟内向我们的母亲解释清楚的业务。",
+                source: "巴菲特论投资 simplicity",
+                year: "1996"
+            },
+            {
+                text: "时间是最好的检验者，它会证明哪些企业是真正有价值的。",
+                source: "巴菲特论时间价值",
+                year: "2000"
+            },
+            {
+                text: "我们喜欢那些能够产生大量自由现金流的企业，因为这些现金可以被再投资于业务或返还给股东。",
+                source: "巴菲特论现金流",
+                year: "1992"
+            },
+            {
+                text: "在投资中，情绪是最大的敌人。",
+                source: "巴菲特论投资心理",
+                year: "2001"
+            },
+            {
+                text: "我们不试图预测利率、经济或股市的走向，我们只关注企业的价值。",
+                source: "巴菲特论宏观预测",
+                year: "1994"
+            },
+            {
+                text: "一个好的企业是不需要太多资本就能增长的企业。",
+                source: "巴菲特论资本效率",
+                year: "1995"
+            },
+            {
+                text: "我们喜欢那些管理层持有大量公司股票的企业，因为这意味着他们的利益与股东一致。",
+                source: "巴菲特论管理层激励",
+                year: "1987"
+            },
+            {
+                text: "在投资中，最重要的品质是耐心和纪律。",
+                source: "巴菲特论投资品质",
+                year: "2002"
+            },
+            {
+                text: "我们不会因为一家公司的股价上涨而买入它，也不会因为股价下跌而卖出它。",
+                source: "巴菲特论股价波动",
+                year: "1998"
+            },
+            {
+                text: "投资是一场马拉松，而不是短跑比赛。",
+                source: "巴菲特论投资心态",
+                year: "2003"
+            },
+            {
+                text: "我们喜欢那些能够自主定价的企业，因为这意味着它们有护城河。",
+                source: "巴菲特论定价能力",
+                year: "1991"
+            },
+            {
+                text: "在投资中，你不需要做对很多次，你只需要避免做错几次大的决策。",
+                source: "巴菲特论投资成功率",
+                year: "1996"
+            },
+            {
+                text: "我们不关心市场对一家公司的看法，我们只关心公司本身的价值。",
+                source: "巴菲特论市场噪音",
+                year: "2005"
+            },
+            {
+                text: "一个好的投资者应该能够独立思考，不被市场情绪所左右。",
+                source: "巴菲特论独立思考",
+                year: "1997"
+            },
+            {
+                text: "我们喜欢那些简单易懂、稳定可靠、有竞争优势的企业。",
+                source: "巴菲特论企业选择",
+                year: "1989"
+            },
+            {
+                text: "在投资中，你应该把自己当作企业的所有者，而不仅仅是股票的持有者。",
+                source: "巴菲特论所有者心态",
+                year: "1994"
+            },
+            {
+                text: "我们不会投资于那些我们认为管理层不诚实或不称职的企业。",
+                source: "巴菲特论管理层评估",
+                year: "1990"
+            },
+            {
+                text: "在投资中，你应该关注的是企业的长期盈利能力，而不是短期业绩波动。",
+                source: "巴菲特论盈利质量",
+                year: "1995"
+            },
+            {
+                text: "我们喜欢那些能够抵御通货膨胀的企业，因为它们能够通过提价来保护利润。",
+                source: "巴菲特论通胀保护",
+                year: "1981"
+            },
+            {
+                text: "在投资中，你应该学会接受损失，但不要重复同样的错误。",
+                source: "巴菲特论失败学习",
+                year: "1997"
+            },
+            {
+                text: "我们不关心一家公司的历史，我们只关心它的未来。",
+                source: "巴菲特论企业前景",
+                year: "1992"
+            },
+            {
+                text: "在投资中，你应该学会等待，等待最好的机会出现。",
+                source: "巴菲特论投资时机",
+                year: "2000"
+            },
+            {
+                text: "我们喜欢那些能够产生高回报率的企业，因为这意味着它们有竞争优势。",
+                source: "巴菲特论回报率",
+                year: "1993"
+            },
+            {
+                text: "在投资中，你应该学会控制自己的情绪，保持冷静和理性。",
+                source: "巴菲特论情绪控制",
+                year: "2008"
+            },
+            {
+                text: "我们不会投资于那些我们认为会被技术变革所颠覆的企业。",
+                source: "巴菲特论技术风险",
+                year: "1999"
+            },
+            {
+                text: "在投资中，你应该关注的是企业的内在价值，而不是市场价格。",
+                source: "巴菲特论价值投资",
+                year: "1986"
+            },
+            {
+                text: "我们喜欢那些能够持续增长的企业，因为增长是价值的源泉。",
+                source: "巴菲特论增长价值",
+                year: "1994"
+            },
+            {
+                text: "在投资中，你应该学会独立研究，不依赖他人的意见。",
+                source: "巴菲特论独立研究",
+                year: "1996"
+            },
+            {
+                text: "我们不关心短期市场波动，我们只关心企业的长期价值。",
+                source: "巴菲特论长期价值",
+                year: "2001"
+            },
+            {
+                text: "在投资中，你应该学会接受不确定性，但不要冒不必要的风险。",
+                source: "巴菲特论风险接受",
+                year: "1993"
+            },
+            {
+                text: "我们喜欢那些能够产生稳定现金流的企业，因为现金流是价值的基础。",
+                source: "巴菲特论现金流价值",
+                year: "1992"
+            },
+            {
+                text: "在投资中，你应该学会从错误中学习，但不要被错误所吓倒。",
+                source: "巴菲特论错误学习",
+                year: "1997"
+            },
+            {
+                text: "我们不关心一家公司的规模，我们只关心它的盈利能力和竞争优势。",
+                source: "巴菲特论企业规模",
+                year: "1995"
+            },
+            {
+                text: "在投资中，你应该学会专注，专注于少数几个你真正了解的领域。",
+                source: "巴菲特论专注力",
+                year: "1998"
+            },
+            {
+                text: "我们喜欢那些管理层能够坦诚面对问题的企业，因为这意味着他们有勇气和智慧。",
+                source: "巴菲特论管理层品质",
+                year: "2000"
+            },
+            {
+                text: "在投资中，你应该学会耐心，耐心等待最好的投资机会出现。",
+                source: "巴菲特论投资耐心",
+                year: "2004"
+            }
+        ];
+        
+        // 当前语录索引
+        let currentQuoteIndex = 0;
+        
+        // 获取DOM元素
+        const quoteDisplay = document.getElementById('quoteDisplay');
+        const prevButton = document.getElementById('prevButton');
+        const nextButton = document.getElementById('nextButton');
+        const pageIndicator = document.getElementById('pageIndicator');
+        
+        // 显示当前语录
+        function displayQuote() {
+            quoteDisplay.style.opacity = '0';
+            
+            setTimeout(() => {
+                const quoteText = quoteDisplay.querySelector('.quote-text');
+                const quoteSource = document.getElementById('quoteSource');
+                
+                quoteText.textContent = `"${quotes[currentQuoteIndex].text}"`;
+                quoteSource.textContent = `${quotes[currentQuoteIndex].source} (${quotes[currentQuoteIndex].year})`;
+                
+                quoteDisplay.style.opacity = '1';
+                updatePageIndicator();
+            }, 300);
+        }
+        
+        // 更新页码显示
+        function updatePageIndicator() {
+            pageIndicator.textContent = `第 ${currentQuoteIndex + 1} 条 / 共 ${quotes.length} 条`;
+        }
+        
+        // 显示上一条语录
+        function showPrevQuote() {
+            currentQuoteIndex = (currentQuoteIndex - 1 + quotes.length) % quotes.length;
+            displayQuote();
+        }
+        
+        // 显示下一条语录
+        function showNextQuote() {
+            currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
+            displayQuote();
+        }
+        
+        // 事件监听器
+        prevButton.addEventListener('click', showPrevQuote);
+        nextButton.addEventListener('click', showNextQuote);
+        
+        // 键盘导航
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowLeft') {
+                showPrevQuote();
+            } else if (event.key === 'ArrowRight') {
+                showNextQuote();
+            }
+        });
+        
+        // 初始化显示第一条语录
+        displayQuote();
+        
+        /* 
+        添加更多语录的方法：
+        1. 在quotes数组中添加新的语录对象，包含text、source和year属性
+        2. 例如：
+           quotes.push({
+               text: "新的巴菲特语录内容",
+               source: "出处信息",
+               year: "年份"
+           });
+        3. 无需修改其他代码，系统会自动处理新添加的语录
+        */
+    </script>
+</body>
+</html>
