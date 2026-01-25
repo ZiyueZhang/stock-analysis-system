@@ -31,8 +31,8 @@
 
 ### 1) 克隆代码
 ```bash
-git clone <repository-url>
-cd stock-test2
+git clone <repository-url> # 替换为实际仓库 URL
+#或者下载压缩文件并解压它
 ```
 
 ### 2) 后端安装（推荐 uv）

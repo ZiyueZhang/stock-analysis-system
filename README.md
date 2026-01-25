@@ -35,8 +35,8 @@ A powerful, AI-driven stock analysis platform that combines DeepSeek/OpenAI LLMs
 
 ### 1. Clone the Repository
 ```bash
-git clone <repository-url>
-cd stock-test2
+git clone <repository-url> # replace with actual repository URL
+#or download the zip file and extract it
 ```
 
 ### 2. Backend Setup
