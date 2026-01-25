@@ -1,8 +1,6 @@
 import os
 from openai import AsyncOpenAI
-from dotenv import load_dotenv
-
-load_dotenv()
+import config
 
 class LLMService:
     def __init__(self):

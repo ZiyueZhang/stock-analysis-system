@@ -2,9 +2,7 @@ import os
 import httpx
 import json
 import datetime
-from dotenv import load_dotenv
-
-load_dotenv()
+import config
 
 class TavilyClient:
     BASE_URL = "https://api.tavily.com/search"

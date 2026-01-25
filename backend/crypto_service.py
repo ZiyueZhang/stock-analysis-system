@@ -1,8 +1,6 @@
 import os
 from cryptography.fernet import Fernet
-from dotenv import load_dotenv
-
-load_dotenv()
+import config
 
 class CryptoService:
     def __init__(self):

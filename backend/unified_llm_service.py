@@ -124,7 +124,8 @@ class UnifiedLLMService:
                             try:
                                 args = json.loads(tc["function"]["arguments"])
                                 query = args.get("query")
-                                yield f"data: {json.dumps({'content': f'\n\n*Searching: {query}*...\n\n', 'conversation_id': conversation_id})}\n\n"
+                                status_text = f"\n\n*Searching: {query}*...\n\n"
+                                yield f"data: {json.dumps({'content': status_text, 'conversation_id': conversation_id})}\n\n"
                                 
                                 # Execute Search
                                 search_result = await self.tavily.search(query)

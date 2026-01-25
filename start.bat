@@ -18,7 +18,7 @@ if not exist .venv (
 )
 
 :: Start uvicorn in a new window/process
-start "Backend Service" cmd /k "uv run uvicorn main:app --reload --port %BACKEND_PORT%"
+start "Backend Service" cmd /k ".venv\Scripts\python run_backend.py --port %BACKEND_PORT%"
 
 :: Wait for backend to be ready (simple delay for now, can be improved with curl check)
 echo [INFO] Waiting for backend to initialize...

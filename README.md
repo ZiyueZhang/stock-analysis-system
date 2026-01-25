@@ -42,19 +42,25 @@ cd stock-test2
 ### 2. Backend Setup
 ```bash
 cd backend
-# Create virtual environment (recommended)
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-# OR if using uv
-uv pip install -r pyproject.toml
+# Install backend dependencies (recommended)
+# This creates/updates backend/.venv based on pyproject.toml + uv.lock
+uv sync
 
 # Configure Environment
-cp .env.example .env
-# Edit .env and add your TAVILY_API_KEY
+cp .env.example .env  # Windows PowerShell: Copy-Item .env.example .env
+# Edit .env and set at least:
+# - TAVILY_API_KEY
+# - LLM_API_KEY
+#
+# Optional:
+# - LLM_BASE_URL / LLM_MODEL
+# - DATABASE_URL
+#
+# For ENCRYPTION_KEY you can generate a Fernet key with:
+# python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 ```
+
+Security note: never commit real secrets into the repository. Treat any keys that were previously shared in plain text as compromised and rotate them.
 
 ### 3. Frontend Setup
 ```bash
@@ -69,6 +75,13 @@ We provide a unified startup script for Windows:
 start.bat
 ```
 Access the app at `http://localhost:5173`.
+
+## 🧰 Troubleshooting
+
+### Windows console shows `ANOMALY: meaningless REX prefix used`
+- This message is typically emitted by an external/system-level component (e.g., injected hook/driver/security software), not by this project’s Python code.
+- This repo starts the backend via a small wrapper to filter the line from stdout so it won’t pollute logs (see [run_backend.py](file:///f:/Trae/stock-test2/backend/run_backend.py)).
+- Root fix (outside the repo): update/disable/uninstall the software component producing the message (commonly: GPU overlay tools, security/AV, terminal injection tools).
 
 ## 📖 Usage Guide
 
