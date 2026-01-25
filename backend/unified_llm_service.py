@@ -2,6 +2,7 @@ import json
 from sqlalchemy.orm import Session
 from models import APIKey, Conversation, Message
 from crypto_service import CryptoService
+from cryptography.fernet import InvalidToken
 from llm_core.openai_provider import OpenAIProvider
 from typing import AsyncGenerator, List, Dict
 import datetime
@@ -13,7 +14,6 @@ from tavily_service import TavilyClient
 class UnifiedLLMService:
     def __init__(self, db: Session):
         self.db = db
-        self.crypto = CryptoService()
         self.tavily = TavilyClient()
 
     def get_provider(self, provider_name: str):
@@ -27,7 +27,15 @@ class UnifiedLLMService:
             raise ValueError(f"No active API key found for provider: {provider_name}")
 
         # 2. Decrypt key
-        raw_key = self.crypto.decrypt(key_record.encrypted_key)
+        crypto = CryptoService()
+        try:
+            raw_key = crypto.decrypt(key_record.encrypted_key)
+        except InvalidToken as e:
+            key_record.is_active = False
+            self.db.commit()
+            raise ValueError(
+                "Stored API key cannot be decrypted. Configure ENCRYPTION_KEY (or ENCRYPTION_KEY_FILE) and re-save the key."
+            ) from e
         
         # 3. Instantiate provider (Factory logic)
         # Note: We can store base_url in APIKey table or env. 
@@ -50,9 +58,11 @@ class UnifiedLLMService:
                           provider: str = "deepseek", 
                           model: str = "deepseek-chat",
                           conversation_id: str = None,
-                          enable_web_search: bool = False) -> AsyncGenerator[str, None]:
+                          enable_web_search: bool = False,
+                          llm: OpenAIProvider | None = None) -> AsyncGenerator[str, None]:
         
-        llm = self.get_provider(provider)
+        if llm is None:
+            llm = self.get_provider(provider)
         tools = [WEB_SEARCH_TOOL] if enable_web_search else None
         
         # Create conversation if new
@@ -164,5 +174,5 @@ class UnifiedLLMService:
                     break
 
             except Exception as e:
-                yield f"data: {json.dumps({'error': str(e)})}\n\n"
+                yield f"data: {json.dumps({'error': str(e), 'code': 'stream_error', 'conversation_id': conversation_id})}\n\n"
                 break

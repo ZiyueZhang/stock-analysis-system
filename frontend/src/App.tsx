@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Settings, Key, MessageSquare, Menu, Loader2, Play } from 'lucide-react';
+import { Settings, Key, Menu } from 'lucide-react';
 import { streamChat } from './api/stream';
 import { Sidebar } from './components/Sidebar';
 import { ChatWindow } from './components/ChatWindow';
@@ -102,72 +102,6 @@ function App() {
     setMessages([]);
     setTicker('');
     setSelectedPrompt(null);
-  };
-
-  // 4. Analysis & Streaming
-  const handleStreamAnalyze = async () => {
-    if (!selectedPrompt || !ticker) return;
-    setLoading(true);
-    setStreamContent(''); // Clear buffer
-    
-    // Optimistic UI: Add user message immediately
-    const userContent = `Analyze ${ticker} using strategy: ${selectedPrompt.title}.`;
-    const tempUserMsg = { role: 'user', content: userContent };
-    setMessages(prev => [...prev, tempUserMsg]);
-
-    try {
-       const msgsToSend = [
-         { role: 'system', content: getSystemPrompt() },
-         { role: 'user', content: userContent }
-       ];
-       
-       await streamChat(
-         msgsToSend,
-         (chunk, convId) => {
-            // Update buffer
-            setStreamContent(prev => prev + chunk);
-            
-            // If it's the first chunk and we got a conversation ID, set it
-            if (convId && !activeConversationId) {
-                // We won't set it immediately to avoid re-fetching messages mid-stream
-                // Instead we just keep streaming to the buffer
-            }
-         },
-         () => {
-            setLoading(false);
-            // After stream is done, refresh everything to sync with DB
-            fetchConversations();
-            // If this was a new chat, we need to find the new ID (tricky without return)
-            // Ideally backend returns ID in first chunk. 
-            // For now, let's just refresh the conversation list and reload the latest one if it was new
-            if (!activeConversationId) {
-                axios.get(`${API_BASE_URL}/conversations?limit=1`).then(res => {
-                    if (res.data.items.length > 0) {
-                        setActiveConversationId(res.data.items[0].id);
-                    }
-                });
-            } else {
-                // Reload messages to get the persisted assistant message
-                axios.get(`${API_BASE_URL}/conversations/${activeConversationId}/messages`)
-                    .then(res => setMessages(res.data));
-            }
-            setStreamContent('');
-         },
-         (err) => { 
-             console.error(err); 
-             setLoading(false); 
-             setMessages(prev => [...prev, { role: 'assistant', content: `**Error:** ${err.message}` }]);
-         },
-         provider,
-         'deepseek-chat',
-         activeConversationId || undefined,
-         enableWebSearch
-       );
-       
-    } catch (e) {
-      console.error(e);
-      setLoading(false);
-    }
   };
 
   // 5. Handle Delete

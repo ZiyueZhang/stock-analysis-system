@@ -109,22 +109,37 @@ class KeyConfig(BaseModel):
 
 @app.post("/api/chat/completions")
 async def chat_completions(request: ChatRequest, db: Session = Depends(get_db)):
+    if not request.messages:
+        raise HTTPException(status_code=400, detail="messages is empty.")
     service = UnifiedLLMService(db)
+    try:
+        llm = service.get_provider(request.provider)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=500, detail=str(e))
     return StreamingResponse(
         service.chat_stream(
             messages=request.messages,
             provider=request.provider,
             model=request.model,
             conversation_id=request.conversation_id,
-            enable_web_search=request.enable_web_search
+            enable_web_search=request.enable_web_search,
+            llm=llm
         ),
         media_type="text/event-stream"
     )
 
 @app.post("/api/config/keys")
 def add_api_key(config: KeyConfig, db: Session = Depends(get_db)):
-    crypto = CryptoService()
-    encrypted = crypto.encrypt(config.key)
+    if not (config.key or "").strip():
+        raise HTTPException(status_code=400, detail="API key is empty.")
+
+    try:
+        crypto = CryptoService()
+        encrypted = crypto.encrypt(config.key)
+    except RuntimeError as e:
+        raise HTTPException(status_code=500, detail=str(e))
     
     # Check if exists
     existing = db.query(APIKey).filter(APIKey.provider == config.provider, APIKey.alias == config.alias).first()

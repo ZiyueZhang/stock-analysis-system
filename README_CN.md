@@ -53,8 +53,13 @@ cp .env.example .env  # Windows PowerShell: Copy-Item .env.example .env
 # - LLM_BASE_URL / LLM_MODEL
 # - DATABASE_URL
 #
-# ENCRYPTION_KEY 可用 Fernet 生成：
+# ENCRYPTION_KEY（用于加密存储在数据库里的 LLM API Key）可用 Fernet 生成：
 # python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+#
+# 也可用 ENCRYPTION_KEY_FILE 从文件读取（文件内容为 Fernet key 字符串）
+# 注意：更换 ENCRYPTION_KEY/ENCRYPTION_KEY_FILE 会导致旧密文无法解密，需要重新保存 key。
+# 如需临时开发模式（不配置 ENCRYPTION_KEY 也能启动，但重启后无法解密旧数据）：
+# ALLOW_EPHEMERAL_ENCRYPTION_KEY=true
 ```
 
 后端首次启动时会自动将默认策略/提示词写入本地 SQLite 数据库。如需手动重新灌入，可执行：

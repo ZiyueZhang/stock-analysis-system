@@ -21,6 +21,16 @@ export const streamChat = async (
       })
     });
 
+    if (!response.ok) {
+      const text = await response.text();
+      try {
+        const data = JSON.parse(text);
+        throw new Error(data?.detail || data?.error || text || `Request failed (${response.status})`);
+      } catch {
+        throw new Error(text || `Request failed (${response.status})`);
+      }
+    }
+
     if (!response.body) throw new Error('ReadableStream not supported');
 
     const reader = response.body.getReader();
@@ -42,10 +52,12 @@ export const streamChat = async (
           }
           try {
             const data = JSON.parse(jsonStr);
-            if (data.error) throw new Error(data.error);
+            if (data.error) {
+              onError(new Error(data.error));
+              return;
+            }
             if (data.content) onChunk(data.content, data.conversation_id);
           } catch (e) {
-            // Ignore incomplete chunks
           }
         }
       }

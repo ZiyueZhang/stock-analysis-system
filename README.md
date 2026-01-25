@@ -56,8 +56,13 @@ cp .env.example .env  # Windows PowerShell: Copy-Item .env.example .env
 # - LLM_BASE_URL / LLM_MODEL
 # - DATABASE_URL
 #
-# For ENCRYPTION_KEY you can generate a Fernet key with:
+# ENCRYPTION_KEY encrypts the LLM API keys stored in the database.
+# You can generate a Fernet key with:
 # python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+#
+# Alternatively, set ENCRYPTION_KEY_FILE to read the key from a file.
+# Note: changing ENCRYPTION_KEY/ENCRYPTION_KEY_FILE makes old encrypted values undecryptable; re-save the key.
+# For local dev only (not recommended): ALLOW_EPHEMERAL_ENCRYPTION_KEY=true
 ```
 
 Security note: never commit real secrets into the repository. Treat any keys that were previously shared in plain text as compromised and rotate them.
