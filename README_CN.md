@@ -57,6 +57,12 @@ cp .env.example .env  # Windows PowerShell: Copy-Item .env.example .env
 # python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 ```
 
+后端首次启动时会自动将默认策略/提示词写入本地 SQLite 数据库。如需手动重新灌入，可执行：
+```bash
+cd backend
+.venv\Scripts\python seed_prompts.py
+```
+
 ### 3) 前端安装
 ```bash
 cd frontend
@@ -87,4 +93,3 @@ start.bat
 
 ## License
 MIT
-

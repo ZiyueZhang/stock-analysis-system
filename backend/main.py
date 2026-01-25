@@ -6,9 +6,11 @@ from typing import List
 from database import get_db, engine, Base
 from models import Prompt, Watchlist
 import models
+from seed_prompts import seed_if_empty
 
 # Create tables
 Base.metadata.create_all(bind=engine)
+seed_if_empty()
 
 app = FastAPI(title="Stock Analysis System")
 

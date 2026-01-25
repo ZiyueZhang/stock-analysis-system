@@ -175,5 +175,18 @@ def seed():
     db.close()
     print("Prompts seeded successfully.")
 
+def seed_if_empty() -> bool:
+    db = SessionLocal()
+    try:
+        existing = db.query(Prompt).count()
+        if existing > 0:
+            return False
+        for item in PROMPTS_DATA_FULL:
+            db.merge(Prompt(**item))
+        db.commit()
+        return True
+    finally:
+        db.close()
+
 if __name__ == "__main__":
     seed()

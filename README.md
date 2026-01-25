@@ -62,6 +62,12 @@ cp .env.example .env  # Windows PowerShell: Copy-Item .env.example .env
 
 Security note: never commit real secrets into the repository. Treat any keys that were previously shared in plain text as compromised and rotate them.
 
+On first backend start, the default strategies/prompts are automatically seeded into the local SQLite database. If you ever need to reseed manually, run:
+```bash
+cd backend
+.venv\Scripts\python seed_prompts.py  # Windows
+```
+
 ### 3. Frontend Setup
 ```bash
 cd frontend
