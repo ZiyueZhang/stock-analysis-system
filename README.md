@@ -1,3 +1,5 @@
+[English](./README.md) | [中文](./README_CN.md)
+
 # AI Stock Analyst (v1.0.0)
 
 A powerful, AI-driven stock analysis platform that combines DeepSeek/OpenAI LLMs with real-time market data from Tavily to provide in-depth financial insights.
@@ -23,6 +25,46 @@ A powerful, AI-driven stock analysis platform that combines DeepSeek/OpenAI LLMs
 - **Conversation Tracking**: Auto-saves all analyses and chats to a local SQLite database.
 - **Management Tools**: Rename conversations for better organization or delete old ones.
 - **Searchable History**: Quickly find past analyses using the sidebar search.
+
+## 🤖 AI Agent Deployment Guide
+
+If you are an AI Agent (like Trae, Cursor, or Windsurf), use the following steps to deploy and run this project autonomously.
+
+### 1. Environment Check & Setup
+- **OS**: Windows (preferred) or Linux/macOS.
+- **Python**: Ensure `python >= 3.12`.
+- **Node.js**: Ensure `node >= 18` and `npm` are available.
+- **Package Manager**: Use `uv` for backend (faster/safer) and `npm` for frontend.
+
+### 2. Backend Initialization
+1.  Navigate to `backend/`.
+2.  Run `uv sync` to install dependencies and create `.venv`.
+3.  Check for `.env`. If missing, copy from `.env.example`:
+    ```bash
+    cp .env.example .env
+    ```
+4.  **Critical Configuration**:
+    - Generate a Fernet key: `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`
+    - Update `.env` with:
+      - `ENCRYPTION_KEY=<generated_key>`
+      - `TAVILY_API_KEY=<user_provided_key>` (Ask user if missing)
+      - `LLM_API_KEY=<user_provided_key>` (Ask user if missing)
+5.  Seed database: `.venv\Scripts\python seed_prompts.py` (Windows) or `.venv/bin/python seed_prompts.py` (Unix).
+
+### 3. Frontend Initialization
+1.  Navigate to `frontend/`.
+2.  Run `npm install`.
+3.  Build to verify: `npm run build`.
+
+### 4. Running Services
+- **Option A (Windows)**: Run `start.bat` in the root directory.
+- **Option B (Manual)**:
+  - Backend: `cd backend && .venv\Scripts\python run_backend.py`
+  - Frontend: `cd frontend && npm run dev`
+
+### 5. Verification
+- Request `GET http://localhost:8000/` -> Expect `{"message": "Stock Analysis API is running"}`.
+- Request `GET http://localhost:5173/` -> Expect HTML content (via browser or curl).
 
 ## 🛠️ Installation & Setup
 

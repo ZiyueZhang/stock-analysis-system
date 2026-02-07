@@ -1,3 +1,5 @@
+[English](./README.md) | [中文](./README_CN.md)
+
 # AI 股票分析助手（v1.0.0）
 
 一个 AI 驱动的股票分析平台，结合 DeepSeek/OpenAI 兼容的 LLM 与 Tavily 实时检索，为股票/事件提供结构化分析与多轮问答。
@@ -19,6 +21,45 @@
 ### 4) 历史管理
 - 会话与分析结果保存到本地 SQLite
 - 支持重命名、删除、搜索历史会话
+
+## 🤖 AI Agent 自动部署指南
+如果你是 AI Agent（如 Trae, Cursor, Windsurf），请遵循以下步骤自动部署并运行本项目。
+
+### 1. 环境检查与准备
+- **操作系统**: Windows (推荐) 或 Linux/macOS。
+- **Python**: 确保 `python >= 3.12`。
+- **Node.js**: 确保 `node >= 18` 且 `npm` 可用。
+- **包管理器**: 后端使用 `uv`（更快更安全），前端使用 `npm`。
+
+### 2. 后端初始化
+1.  进入 `backend/` 目录。
+2.  运行 `uv sync` 安装依赖并创建 `.venv`。
+3.  检查 `.env`。如果不存在，从示例文件复制：
+    ```bash
+    cp .env.example .env
+    ```
+4.  **关键配置**:
+    - 生成 Fernet 密钥: `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`
+    - 更新 `.env`:
+      - `ENCRYPTION_KEY=<generated_key>`
+      - `TAVILY_API_KEY=<user_provided_key>` (若缺失请询问用户)
+      - `LLM_API_KEY=<user_provided_key>` (若缺失请询问用户)
+5.  灌入初始数据: `.venv\Scripts\python seed_prompts.py` (Windows) 或 `.venv/bin/python seed_prompts.py` (Unix)。
+
+### 3. 前端初始化
+1.  进入 `frontend/` 目录。
+2.  运行 `npm install`。
+3.  构建验证: `npm run build`。
+
+### 4. 启动服务
+- **方案 A (Windows)**: 在根目录运行 `start.bat`。
+- **方案 B (手动)**:
+  - 后端: `cd backend && .venv\Scripts\python run_backend.py`
+  - 前端: `cd frontend && npm run dev`
+
+### 5. 验证
+- 请求 `GET http://localhost:8000/` -> 预期返回 `{"message": "Stock Analysis API is running"}`。
+- 请求 `GET http://localhost:5173/` -> 预期返回 HTML 内容 (通过浏览器或 curl)。
 
 ## 安装与运行
 
