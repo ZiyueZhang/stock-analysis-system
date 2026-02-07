@@ -44,7 +44,6 @@ export const StrategyDetail: React.FC<StrategyDetailProps> = ({ prompt }) => {
         </div>
       );
     } catch (e) {
-      console.error("StrategyDetail Render Error:", e);
       return (
         <div className="p-3 bg-red-50 text-red-600 rounded border border-red-200 text-xs flex items-center gap-2">
           <AlertTriangle className="w-4 h-4" />

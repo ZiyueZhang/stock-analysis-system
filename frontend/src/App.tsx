@@ -5,6 +5,7 @@ import { streamChat } from './api/stream';
 import { Sidebar } from './components/Sidebar';
 import { ChatWindow } from './components/ChatWindow';
 import { StrategyDetail } from './components/StrategyDetail';
+import { QuoteCarousel } from './components/QuoteCarousel';
 
 // API Configuration
 const API_BASE_URL = 'http://localhost:8000/api';
@@ -56,9 +57,14 @@ function App() {
   // UI State
   const [showKeyModal, setShowKeyModal] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false); // Default hidden on mobile, visible on desktop via CSS
+  const [showRightPanel, setShowRightPanel] = useState(false);
   const [apiKey, setApiKey] = useState('');
   const [provider, setProvider] = useState('deepseek');
   const [enableWebSearch, setEnableWebSearch] = useState(true);
+  const [promptsError, setPromptsError] = useState<string | null>(null);
+  const [conversationsError, setConversationsError] = useState<string | null>(null);
+  const [messagesError, setMessagesError] = useState<string | null>(null);
+  const [chatError, setChatError] = useState<string | null>(null);
 
   // 1. Initial Data Load
   useEffect(() => {
@@ -68,14 +74,20 @@ function App() {
 
   const fetchPrompts = () => {
     axios.get(`${API_BASE_URL}/prompts`)
-      .then(res => setPrompts(res.data))
-      .catch(err => console.error("Failed to fetch prompts", err));
+      .then(res => {
+        setPrompts(res.data);
+        setPromptsError(null);
+      })
+      .catch(() => setPromptsError("后端不可用：无法获取策略列表"));
   };
 
   const fetchConversations = () => {
     axios.get(`${API_BASE_URL}/conversations`)
-      .then(res => setConversations(res.data.items || []))
-      .catch(err => console.error("Failed to fetch history", err));
+      .then(res => {
+        setConversations(res.data.items || []);
+        setConversationsError(null);
+      })
+      .catch(() => setConversationsError("后端不可用：无法获取会话历史"));
   };
 
   // 2. Load Messages when switching conversations
@@ -89,10 +101,11 @@ function App() {
       .then(res => {
         setMessages(res.data);
         setLoading(false);
+        setMessagesError(null);
       })
-      .catch(err => {
-        console.error(err);
+      .catch(() => {
         setLoading(false);
+        setMessagesError("后端不可用：无法获取会话消息");
       });
   }, [activeConversationId]);
 
@@ -155,6 +168,7 @@ function App() {
       setMessages(prev => [...prev, newMsg]);
       setLoading(true);
       setStreamContent('');
+      setChatError(null);
 
       try {
         // Construct history for context
@@ -187,8 +201,8 @@ function App() {
                 }
             },
             (err) => {
-                console.error(err);
                 setLoading(false);
+                setChatError(err?.message || "对话请求失败");
                 setMessages(prev => [...prev, { role: 'assistant', content: `**Error:** ${err.message}` }]);
             },
             provider,
@@ -197,8 +211,8 @@ function App() {
             enableWebSearch
         );
       } catch (e) {
-          console.error(e);
           setLoading(false);
+          setChatError("对话请求失败");
       }
   };
 
@@ -233,6 +247,7 @@ function App() {
     } else {
         setSelectedPrompt(prompt);
     }
+    setShowRightPanel(false);
   };
 
   const getSystemPrompt = () => {
@@ -248,6 +263,10 @@ function App() {
       {/* Mobile Sidebar Overlay */}
       {showSidebar && (
         <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setShowSidebar(false)} />
+      )}
+
+      {showRightPanel && activeConversationId && (
+        <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setShowRightPanel(false)} />
       )}
 
       {/* Sidebar */}
@@ -283,6 +302,13 @@ function App() {
           >
             <Settings className="w-5 h-5" />
           </button>
+          <button
+            onClick={() => setShowRightPanel(true)}
+            className="md:hidden px-3 py-2 border-2 border-ink rounded hover:bg-slate-100 text-ink text-sm font-bold"
+            title="Strategy Panel"
+          >
+            策略
+          </button>
         </header>
 
         {/* Workspace Grid */}
@@ -301,10 +327,29 @@ function App() {
             />
 
             {/* Right Column: Config & Details (Only visible on new chat or desktop) */}
-            <div className={`${activeConversationId ? 'hidden lg:flex' : 'flex'} w-full lg:w-96 bg-white border-l-2 border-slate-200 flex-col overflow-hidden flex-shrink-0`}>
+            <div className={`${activeConversationId && !showRightPanel ? 'hidden md:flex' : 'flex'} ${activeConversationId && showRightPanel ? 'fixed inset-y-0 right-0 z-50 md:static md:z-auto md:inset-auto' : ''} w-full md:w-96 bg-white border-l-2 border-slate-200 flex-col overflow-hidden flex-shrink-0`}>
                 
                 {/* Scrollable Container */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-6">
+
+                    {showRightPanel && activeConversationId && (
+                        <div className="md:hidden flex justify-end">
+                            <button
+                                onClick={() => setShowRightPanel(false)}
+                                className="px-3 py-2 border-2 border-ink rounded hover:bg-slate-100 text-ink text-sm font-bold"
+                            >
+                                关闭
+                            </button>
+                        </div>
+                    )}
+
+                    {(promptsError || conversationsError || messagesError || chatError) && (
+                        <div className="border-2 border-amber-200 bg-amber-50 rounded-lg p-3 text-xs text-amber-900">
+                            {promptsError || conversationsError || messagesError || chatError}
+                        </div>
+                    )}
+
+                    <QuoteCarousel intervalMs={2500} />
                     
                     {/* Section: Configuration */}
                     <div>
